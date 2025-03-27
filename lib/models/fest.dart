@@ -30,15 +30,15 @@ class Fest {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['festID'] = this.festID;
-    data['festName'] = this.festName;
-    data['festDetail'] = this.festDetail;
-    data['festState'] = this.festState;
-    data['festNumDay'] = this.festNumDay;
-    data['festCost'] = this.festCost;
-    data['userID'] = this.userID;
-    data['festImage'] = this.festImage;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['festID'] = festID;
+    data['festName'] = festName;
+    data['festDetail'] = festDetail;
+    data['festState'] = festState;
+    data['festNumDay'] = festNumDay;
+    data['festCost'] = festCost;
+    data['userID'] = userID;
+    data['festImage'] = festImage;
     return data;
   }
 }

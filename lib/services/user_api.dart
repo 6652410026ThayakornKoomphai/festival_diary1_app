@@ -28,7 +28,7 @@ class UserApi {
 
       //เอาข้อมูลใน FormData ส่งผ่าน API ตาม Endpoint ที่ได้กำหนดไว้
       final responseData = await dio.post(
-        'http://172.17.34.13:3030/user/',
+        'http://192.168.1.106:3030/user/',
         data: formData,
         options: Options(headers: {
           'Content-type': 'multipart/from-data',

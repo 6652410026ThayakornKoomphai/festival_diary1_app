@@ -24,12 +24,12 @@ class User {
 
   //เอาไว้แปลงข้อมูลที่ใช้ใน App ไปเป็น Json
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userID'] = this.userID;
-    data['userFullName'] = this.userFullName;
-    data['userName'] = this.userName;
-    data['userPassword'] = this.userPassword;
-    data['userImage'] = this.userImage;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userID'] = userID;
+    data['userFullName'] = userFullName;
+    data['userName'] = userName;
+    data['userPassword'] = userPassword;
+    data['userImage'] = userImage;
     return data;
   }
 }
