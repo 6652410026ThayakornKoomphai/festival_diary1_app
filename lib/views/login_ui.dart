@@ -1,6 +1,9 @@
 // ignore_for_file: sort_child_properties_last
 
 import 'package:festival_diary1_app/constants/color_constant.dart';
+import 'package:festival_diary1_app/models/user.dart';
+import 'package:festival_diary1_app/services/user_api.dart';
+import 'package:festival_diary1_app/views/home_ui.dart';
 import 'package:festival_diary1_app/views/register_screen_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +15,21 @@ class LoginUI extends StatefulWidget {
 }
 
 class _LoginUIState extends State<LoginUI> {
+  TextEditingController userNameCtrl = TextEditingController();
+  TextEditingController userPasswordCtrl = TextEditingController();
+
+  bool isShowUserPassword = true;
+
+  showWarningSnackBar(msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Align(alignment: Alignment.center, child: Text('$msg')),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,6 +77,7 @@ class _LoginUIState extends State<LoginUI> {
                     height: 10,
                   ),
                   TextField(
+                    controller: userNameCtrl,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person),
@@ -81,13 +100,22 @@ class _LoginUIState extends State<LoginUI> {
                     height: 10,
                   ),
                   TextField(
-                    obscureText: true,
+                    controller: userPasswordCtrl,
+                    obscureText: isShowUserPassword,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.lock),
                       suffixIcon: IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.remove_red_eye),
+                        onPressed: () {
+                          setState(() {
+                            isShowUserPassword = !isShowUserPassword;
+                          });
+                        },
+                        icon: isShowUserPassword == true
+                            ? Icon(Icons.visibility_off)
+                            : Icon(
+                                Icons.visibility,
+                              ),
                       ),
                     ),
                   ),
@@ -95,7 +123,35 @@ class _LoginUIState extends State<LoginUI> {
                     height: 30,
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      //Validated UI
+                      if (userNameCtrl.text.length == 0) {
+                        showWarningSnackBar('ป้อนชื่อผู้ใช้ด้วย');
+                      } else if (userPasswordCtrl.text.length == 0) {
+                        showWarningSnackBar('ป้อนรหัสผู้ใช้ด้วย');
+                      } else {
+                        //ส่งชื่อผู้ใช้และรหัสผ่าน ไปยัง API เพื่อตรวจสอบ
+                        //แพ็คข้อมูลที่ต้องส่งไปให้กับ checkLogin()
+                        User user = User(
+                          userName: userNameCtrl.text,
+                          userPassword: userPasswordCtrl.text,
+                        );
+                        //เรียกใช้ checkLogin()
+                        user = await UserApi().checkLogin(user);
+                        if (user.userID != null) {
+                          //แปลว่าชื่อผู้ใช้รหัสผ่านถูกต้องเปิดไปหน้าจอ HomeUI()
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeUI(
+                                        user: user,
+                                      )));
+                        } else {
+                          //แปลว่าชื่อผู้ใช้รหัสผ่านไม่ถูกต้อง แสดง snackbar เดือน
+                          showWarningSnackBar('ชื่อผู้ใช้รหัสผ่านไม่ถูกต้อง');
+                        }
+                      }
+                    },
                     child: Text(
                       'เข้าสู่ระบบ',
                       style: TextStyle(

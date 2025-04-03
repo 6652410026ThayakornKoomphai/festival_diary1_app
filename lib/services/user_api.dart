@@ -1,9 +1,10 @@
 //user_api.dart
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unnecessary_brace_in_string_interps, unused_local_variable
 
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:festival_diary1_app/constants/baseurl_constants.dart';
 import 'package:festival_diary1_app/models/user.dart';
 
 class UserApi {
@@ -28,7 +29,7 @@ class UserApi {
 
       //เอาข้อมูลใน FormData ส่งผ่าน API ตาม Endpoint ที่ได้กำหนดไว้
       final responseData = await dio.post(
-        'http://192.168.1.106:3030/user/',
+        '${baseUrl}/user/',
         data: formData,
         options: Options(headers: {
           'Content-type': 'multipart/from-data',
@@ -43,6 +44,24 @@ class UserApi {
     } catch (e) {
       print('Exception: $e');
       return false;
+    }
+  }
+
+  //สร้าง Method เรียกใช้ API ให้เอาชื่อผู้ใช้และรหัสผ่านไปตรวจสอบ
+  Future<User> checkLogin(User user) async {
+    try {
+      final responseData = await dio.get(
+        '${baseUrl}/user/${user.userName}/${user.userPassword}',
+      );
+      //หลังจากทำงานเสร็จ ณ ที่นี้ตรวจสอบผลการทำงานจาก responseData
+      if (responseData.statusCode == 200) {
+        return User.fromJson(responseData.data['info']);
+      } else {
+        return User();
+      }
+    } catch (e) {
+      print('Exception: $e');
+      return User();
     }
   }
 }
