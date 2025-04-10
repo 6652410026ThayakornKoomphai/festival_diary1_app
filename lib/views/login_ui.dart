@@ -125,9 +125,9 @@ class _LoginUIState extends State<LoginUI> {
                   ElevatedButton(
                     onPressed: () async {
                       //Validated UI
-                      if (userNameCtrl.text.length == 0) {
+                      if (userNameCtrl.text.isEmpty) {
                         showWarningSnackBar('ป้อนชื่อผู้ใช้ด้วย');
-                      } else if (userPasswordCtrl.text.length == 0) {
+                      } else if (userPasswordCtrl.text.isEmpty) {
                         showWarningSnackBar('ป้อนรหัสผู้ใช้ด้วย');
                       } else {
                         //ส่งชื่อผู้ใช้และรหัสผ่าน ไปยัง API เพื่อตรวจสอบ
