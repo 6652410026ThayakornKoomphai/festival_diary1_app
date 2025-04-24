@@ -3,13 +3,15 @@
 import 'dart:io';
 
 import 'package:festival_diary1_app/constants/color_constant.dart';
+import 'package:festival_diary1_app/models/fest.dart';
+import 'package:festival_diary1_app/services/fest_api.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddFestUI extends StatefulWidget {
   int? userID;
 
-  AddFestUI({super.key,this.userID});
+  AddFestUI({super.key, this.userID});
 
   @override
   State<AddFestUI> createState() => _AddFestUIState();
@@ -32,6 +34,32 @@ class _AddFestUIState extends State<AddFestUI> {
       festFile = File(image.path);
     });
   }
+
+  showWarningSnackBar(msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Align(alignment: Alignment.center, child: Text('$msg')),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  showCompleteSnackBar(msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Align(alignment: Alignment.center, child: Text('$msg')),
+        backgroundColor: const Color.fromARGB(255, 64, 212, 64),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  TextEditingController festNameCtrl = TextEditingController();
+  TextEditingController festDetailCtrl = TextEditingController();
+  TextEditingController festStateCtrl = TextEditingController();
+  TextEditingController festNumDayCtrl = TextEditingController();
+  TextEditingController festCostCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +139,7 @@ class _AddFestUIState extends State<AddFestUI> {
                       height: 10,
                     ),
                     TextField(
+                      controller: festNameCtrl,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.mode_of_travel_sharp),
@@ -136,6 +165,7 @@ class _AddFestUIState extends State<AddFestUI> {
                       height: 10,
                     ),
                     TextField(
+                      controller: festDetailCtrl,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.info_outline),
@@ -161,6 +191,7 @@ class _AddFestUIState extends State<AddFestUI> {
                       height: 10,
                     ),
                     TextField(
+                      controller: festStateCtrl,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.house),
@@ -186,6 +217,7 @@ class _AddFestUIState extends State<AddFestUI> {
                       height: 10,
                     ),
                     TextField(
+                      controller: festNumDayCtrl,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.calendar_today),
@@ -211,6 +243,7 @@ class _AddFestUIState extends State<AddFestUI> {
                       height: 10,
                     ),
                     TextField(
+                      controller: festCostCtrl,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.attach_money),
@@ -223,7 +256,38 @@ class _AddFestUIState extends State<AddFestUI> {
                       height: 30,
                     ),
                     ElevatedButton(
-                      onPressed: () async {},
+                      onPressed: () async {
+                        //ส่งข้อมูลไปบันทึแก้ไขใน DB ผ่าน API ที่สร้างไว้
+                        //Validated UI
+                        if (festNameCtrl.text.trim().isEmpty) {
+                          showWarningSnackBar('ป้อนชื่องานด้วย');
+                        } else if (festDetailCtrl.text.trim().isEmpty) {
+                          showWarningSnackBar('ป้อนรายละเอียดด้วย');
+                        } else if (festStateCtrl.text.trim().isEmpty) {
+                          showWarningSnackBar('ป้อนสถานที่ด้วย');
+                        } else if (festNumDayCtrl.text.trim().isEmpty) {
+                          showWarningSnackBar('ป้อนจำนวนวันด้วย');
+                        } else if (festCostCtrl.text.trim().isEmpty) {
+                          showWarningSnackBar('ป้อนค่าตั๋วด้วย');
+                        } else {
+                          //แพ็กข้อมูลแล้วส่งผ่าน API ไปบันทึกแก้ไขลงใน DB
+                          //แพ็คข้อมูล
+                          Fest fest = Fest(
+                            festName: festNameCtrl.text.trim(),
+                            festDetail: festDetailCtrl.text.trim(),
+                            festState: festStateCtrl.text.trim(),
+                            festNumDay: int.parse(festNumDayCtrl.text.trim()),
+                            festCost: double.parse(festCostCtrl.text.trim()),
+                            userID: widget.userID,
+                          );
+                          if (await FestApi().addFest(fest, festFile)) {
+                            showCompleteSnackBar('บันทึกเรียบร้อยแล้ว');
+                            Navigator.pop(context, fest);
+                          } else {
+                            showCompleteSnackBar('บันทึกไม่สำเร็จ');
+                          }
+                        }
+                      },
                       child: Text(
                         'บันทึกงานFestival',
                         style: TextStyle(
